@@ -1,0 +1,43 @@
+module Requirement2Content;
+--@path Req=Requirements.ecore
+--@path Content=content.ecore
+
+create OUT: Content from IN: Req;
+
+helper def : firstToLower(name : String) : String =
+	name.substring(1,1).toLower() + name.substring(2, name.size());
+
+lazy rule Parameter {
+	from
+		outputPin : Req!OutputPin
+	to 
+		param : Content!Param (
+			name <- outputPin.name,
+			type <- outputPin.type
+		)
+}
+
+lazy rule UserAction2Operation {
+	from s: Req!UserAction 
+	to t: Content!Operation (
+		name <- thisModule.firstToLower(s.name.regexReplaceAll(' ', ',')),
+		return <- 'SUCCESS',
+		isPublic <- true,
+		isStatic <- false
+	)
+}
+
+rule Activity2ContentClass {
+	from s: Req!Activity 
+	to t: Content!ContentClass (
+		name <- s.name,
+		operations <- s.nodes->select(node |node.oclIsTypeOf(Req!UserAction))->iterate(e; res : Set(Req!UserAction) = Set {} |
+			if (res->collect(f | f.name)->includes(e.name)) then
+				res
+			else
+				res->including(e)
+			endif
+			)->collect(e | thisModule.UserAction2Operation(e))
+	)
+}
+

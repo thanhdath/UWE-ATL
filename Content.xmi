@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ContentClass xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns="www.content.com" name="user">
+  <operations name="createContact" return="SUCCESS" isPublic="true"/>
+  <operations name="updateContact" return="SUCCESS" isPublic="true"/>
+</ContentClass>
